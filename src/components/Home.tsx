@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { categories } from '../data/exercises'
 import { getCategoryProgress, resetProgress } from '../hooks/useProgress'
 import { AppShell } from './AppShell'
+import { InstallAppSection } from './InstallAppSection'
 
 interface Props {
   onSelectCategory: (id: string) => void
@@ -124,6 +125,8 @@ export function Home({
             ))}
           </div>
         </section>
+
+        <InstallAppSection />
 
         <section className="landing-categories" id="kategorien" ref={categoriesRef}>
           <div className="section-head">

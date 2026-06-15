@@ -618,6 +618,343 @@ button {
   margin: 0 auto;
 }
 
+/* ─── PWA / App Install ─── */
+.landing-install {
+  padding: 48px 0 64px;
+}
+
+.install-banner {
+  position: relative;
+  overflow: hidden;
+  padding: 32px 28px;
+  display: grid;
+  gap: 28px;
+  border-color: rgba(109, 126, 234, 0.2);
+}
+
+.install-banner-glow {
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(109, 126, 234, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.install-banner-content {
+  position: relative;
+  z-index: 1;
+}
+
+.install-banner-text h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  margin: 8px 0 12px;
+}
+
+.install-banner-text p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.install-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+  align-items: center;
+}
+
+.install-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.install-btn-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.install-banner-link {
+  font-size: 0.9rem;
+  padding: 10px 16px;
+}
+
+.install-banner-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.install-phone-mockup {
+  width: 140px;
+  height: 260px;
+  border-radius: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(160deg, rgba(36, 43, 74, 0.95), rgba(8, 11, 24, 0.9));
+  padding: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.install-phone-screen {
+  height: 100%;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.install-phone-screen span {
+  font-size: 2.5rem;
+}
+
+.install-phone-screen p {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.install-platform-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.install-platform-card {
+  padding: 22px 24px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.install-platform-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(109, 126, 234, 0.25);
+}
+
+.install-platform-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.install-platform-card h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.install-platform-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.header-nav-link--install {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(109, 126, 234, 0.12);
+  border: 1px solid rgba(109, 126, 234, 0.25);
+  border-radius: var(--radius-xs);
+  padding: 6px 12px !important;
+}
+
+.header-nav-link--install:hover {
+  background: rgba(109, 126, 234, 0.22);
+  border-color: rgba(109, 126, 234, 0.4);
+  color: var(--text);
+}
+
+.header-install-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.header-install-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.install-dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-width: min(440px, calc(100vw - 32px));
+  width: 100%;
+  color: var(--text);
+}
+
+.install-dialog::backdrop {
+  background: rgba(4, 6, 14, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.install-dialog-inner {
+  padding: 28px 24px 24px;
+  position: relative;
+  margin: 0;
+}
+
+.install-dialog-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.install-dialog-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.install-dialog-head {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-right: 28px;
+}
+
+.install-dialog-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.install-dialog-head h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.install-dialog-head p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.install-dialog-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.install-step-card {
+  padding: 18px 20px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+}
+
+.install-step-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.install-step-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+.install-step-badge--ready {
+  background: rgba(67, 233, 123, 0.15);
+  color: var(--success);
+}
+
+.install-step-card h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.install-step-card > p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.install-ios-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.install-ios-steps li {
+  margin-bottom: 8px;
+}
+
+.install-ios-steps strong {
+  color: var(--text);
+}
+
+.install-ios-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.install-desktop-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.install-installed-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--success-bg);
+  border: 1px solid rgba(67, 233, 123, 0.25);
+}
+
+.install-installed-banner > span {
+  font-size: 1.5rem;
+  color: var(--success);
+  line-height: 1;
+}
+
+.install-installed-banner strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.install-installed-banner p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+
 .reset-btn {
   margin-top: 16px;
   font-size: 0.8rem;
@@ -1704,6 +2041,17 @@ button {
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 18px;
+  }
+
+  .install-banner {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 36px 40px;
+  }
+
+  .install-platform-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 
   .category-layout {

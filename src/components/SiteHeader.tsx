@@ -1,3 +1,5 @@
+import { usePwaInstall } from '../hooks/usePwaInstall'
+import { useInstallApp } from '../context/InstallAppContext'
 import { ProfileDropdown } from './ProfileDropdown'
 
 interface Props {
@@ -21,6 +23,9 @@ export function SiteHeader({
   badge,
   showBackInsteadOfBrand,
 }: Props) {
+  const { openInstallModal } = useInstallApp()
+  const { installed } = usePwaInstall()
+
   return (
     <header className="site-header">
       <div className="site-header-inner">
@@ -43,6 +48,17 @@ export function SiteHeader({
         </div>
 
         <nav className="site-header-right" aria-label="Hauptnavigation">
+          {!installed && (
+            <button
+              type="button"
+              className="header-nav-link header-nav-link--install"
+              onClick={openInstallModal}
+              title="App installieren"
+            >
+              <span className="header-install-icon" aria-hidden>📲</span>
+              <span className="header-install-label">App</span>
+            </button>
+          )}
           <button type="button" className="header-nav-link" onClick={onMarathon}>
             Marathon
           </button>
