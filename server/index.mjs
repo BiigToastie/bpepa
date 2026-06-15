@@ -7,7 +7,9 @@ import rateLimit from 'express-rate-limit'
 import cookieParser from 'cookie-parser'
 import {
   authMiddleware,
+  authReadyMiddleware,
   clearAuthCookie,
+  isAuthConfigured,
   loginUser,
   registerUser,
   setAuthCookie,
@@ -40,7 +42,23 @@ const authLimiter = rateLimit({
   message: { error: 'Zu viele Versuche. Bitte später erneut.' },
 })
 
-app.post('/api/auth/register', authLimiter, (req, res) => {
+function healthPayload() {
+  return {
+    ok: true,
+    auth: isAuthConfigured(),
+    ...(isAuthConfigured() ? {} : { warning: 'JWT_SECRET fehlt — Login/Marathon deaktiviert' }),
+  }
+}
+
+app.get('/api/health', (_req, res) => {
+  res.json(healthPayload())
+})
+
+app.get('/health', (_req, res) => {
+  res.json(healthPayload())
+})
+
+app.post('/api/auth/register', authLimiter, authReadyMiddleware, (req, res) => {
   const { email, password, displayName } = req.body ?? {}
   if (!validateEmail(email) || !validatePassword(password)) {
     return res.status(400).json({ error: 'Ungültige E-Mail oder Passwort (min. 8 Zeichen).' })
@@ -54,7 +72,7 @@ app.post('/api/auth/register', authLimiter, (req, res) => {
   res.json({ user: { id: user.id, email: user.email, displayName: user.display_name } })
 })
 
-app.post('/api/auth/login', authLimiter, (req, res) => {
+app.post('/api/auth/login', authLimiter, authReadyMiddleware, (req, res) => {
   const { email, password } = req.body ?? {}
   if (!validateEmail(email) || !validatePassword(password)) {
     return res.status(400).json({ error: 'Ungültige Anmeldedaten.' })
@@ -73,7 +91,7 @@ app.post('/api/auth/logout', (_req, res) => {
   res.json({ ok: true })
 })
 
-app.get('/api/auth/me', authMiddleware, (req, res) => {
+app.get('/api/auth/me', authReadyMiddleware, authMiddleware, (req, res) => {
   res.json({
     user: {
       id: req.user.id,
@@ -83,7 +101,7 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
   })
 })
 
-app.post('/api/marathon/state', authMiddleware, (req, res) => {
+app.post('/api/marathon/state', authReadyMiddleware, authMiddleware, (req, res) => {
   const { categoryIds, questionMap } = req.body ?? {}
   if (!Array.isArray(categoryIds) || !questionMap || typeof questionMap !== 'object') {
     return res.status(400).json({ error: 'Ungültige Anfrage' })
@@ -92,7 +110,7 @@ app.post('/api/marathon/state', authMiddleware, (req, res) => {
   res.json(state)
 })
 
-app.post('/api/marathon/answer', authMiddleware, (req, res) => {
+app.post('/api/marathon/answer', authReadyMiddleware, authMiddleware, (req, res) => {
   const { categoryId, questionId, correct, categoryIds, questionMap } = req.body ?? {}
   if (!categoryId || !questionId || typeof correct !== 'boolean') {
     return res.status(400).json({ error: 'Ungültige Anfrage' })
@@ -105,7 +123,7 @@ app.post('/api/marathon/answer', authMiddleware, (req, res) => {
   res.json({ ok: true })
 })
 
-app.post('/api/marathon/complete-run', authMiddleware, (req, res) => {
+app.post('/api/marathon/complete-run', authReadyMiddleware, authMiddleware, (req, res) => {
   const { sections, totalAnswered, totalCorrect, categoryIds, questionMap } = req.body ?? {}
   if (!Array.isArray(sections)) {
     return res.status(400).json({ error: 'Ungültige Anfrage' })
@@ -121,17 +139,26 @@ app.get('/api/leaderboard', (_req, res) => {
   res.json({ entries: getLeaderboard(50) })
 })
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true })
-})
-
 if (isProd && fs.existsSync(distDir)) {
   app.use(express.static(distDir, { index: false, maxAge: '1d' }))
   app.get(/^(?!\/api).*/, (_req, res) => {
     res.sendFile(path.join(distDir, 'index.html'))
   })
+} else if (isProd) {
+  console.log(`WARNUNG: dist-Ordner fehlt (${distDir}) — nur API verfügbar`)
 }
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`API + App auf http://0.0.0.0:${port}`)
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`BWT Trainer bereit auf http://0.0.0.0:${port}`)
+  if (isAuthConfigured()) {
+    console.log('Auth: JWT_SECRET konfiguriert')
+  } else {
+    console.log('WARNUNG: JWT_SECRET fehlt oder ist zu kurz (<32) — Login/Marathon deaktiviert')
+    console.log('Setze JWT_SECRET in KynxGate Variables (openssl rand -base64 48)')
+  }
+})
+
+server.on('error', (err) => {
+  console.log(`FEHLER beim Server-Start auf Port ${port}: ${err.message}`)
+  process.exit(1)
 })

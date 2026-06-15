@@ -34,12 +34,14 @@ Dann nutzt KynxGate das Repo-`Dockerfile` und setzt `--health-cmd "true"` (kein 
 
 ## Pflicht-Umgebungsvariablen
 
-| Variable | Wert |
-|----------|------|
-| `JWT_SECRET` | Min. 32 zufällige Zeichen (`openssl rand -base64 48`) |
-| `DATA_DIR` | `/data` (Volume-Mount von KynxGate) |
-| `NODE_ENV` | `production` |
-| `PORT` | wird von KynxGate gesetzt (z. B. `9102`) |
+| Variable | Wert | Wichtig |
+|----------|------|---------|
+| **`JWT_SECRET`** | Min. **32** Zeichen (`openssl rand -base64 48`) | Ohne JWT: App läuft, Login/Marathon deaktiviert |
+| `DATA_DIR` | `/data` | Volume-Mount von KynxGate |
+| `NODE_ENV` | `production` | |
+| `PORT` | wird von KynxGate gesetzt | |
+
+**Healthcheck-Pfad in KynxGate:** `/api/health` oder `/health`
 
 ---
 

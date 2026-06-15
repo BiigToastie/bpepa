@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { db } from './db.mjs'
 
-const JWT_SECRET_RAW = process.env.JWT_SECRET
+const JWT_SECRET_RAW = process.env.JWT_SECRET?.trim()
 const JWT_SECRET =
   JWT_SECRET_RAW && JWT_SECRET_RAW.length >= 32
     ? JWT_SECRET_RAW
@@ -10,13 +10,17 @@ const JWT_SECRET =
       ? null
       : 'dev-only-fallback-secret-min-32-chars'
 
-if (!JWT_SECRET) {
-  console.error('FEHLER: JWT_SECRET muss gesetzt sein (min. 32 Zeichen). Siehe .env.example')
-  process.exit(1)
+export function isAuthConfigured() {
+  return Boolean(JWT_SECRET)
 }
 
-if (!JWT_SECRET_RAW || JWT_SECRET_RAW.length < 32) {
-  console.warn('WARNUNG: JWT_SECRET fehlt – nur für lokale Entwicklung.')
+export function authReadyMiddleware(req, res, next) {
+  if (!JWT_SECRET) {
+    return res.status(503).json({
+      error: 'Login derzeit nicht verfügbar: JWT_SECRET fehlt in den Server-Umgebungsvariablen (min. 32 Zeichen).',
+    })
+  }
+  next()
 }
 
 const TOKEN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
@@ -41,6 +45,7 @@ export function verifyPassword(password, hash) {
 }
 
 export function signToken(user) {
+  if (!JWT_SECRET) throw new Error('JWT_SECRET nicht konfiguriert')
   return jwt.sign(
     { sub: user.id, email: user.email },
     JWT_SECRET,
@@ -49,6 +54,7 @@ export function signToken(user) {
 }
 
 export function verifyToken(token) {
+  if (!JWT_SECRET) return null
   try {
     return jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
   } catch {
