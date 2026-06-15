@@ -19,10 +19,13 @@ db.pragma('foreign_keys = ON')
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    password_hash TEXT NOT NULL,
+    discord_id TEXT UNIQUE,
+    email TEXT UNIQUE COLLATE NOCASE,
+    password_hash TEXT,
     display_name TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    avatar_url TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS marathon_progress (
@@ -49,5 +52,17 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_marathon_progress_user ON marathon_progress(user_id);
   CREATE INDEX IF NOT EXISTS idx_marathon_runs_user ON marathon_runs(user_id);
 `)
+
+const userCols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name)
+if (!userCols.includes('discord_id')) {
+  db.exec('ALTER TABLE users ADD COLUMN discord_id TEXT')
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_discord_id ON users(discord_id)')
+}
+if (!userCols.includes('avatar_url')) {
+  db.exec('ALTER TABLE users ADD COLUMN avatar_url TEXT')
+}
+if (!userCols.includes('updated_at')) {
+  db.exec("ALTER TABLE users ADD COLUMN updated_at TEXT NOT NULL DEFAULT (datetime('now'))")
+}
 
 console.log(`Datenbank: ${dbPath}`)

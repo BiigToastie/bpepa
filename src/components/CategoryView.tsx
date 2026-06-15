@@ -9,9 +9,12 @@ interface Props {
   category: Category
   onStart: (difficulty: Difficulty) => void
   onBack: () => void
+  onHome: () => void
+  onMarathon: () => void
+  onLeaderboard: () => void
 }
 
-export function CategoryView({ category, onStart, onBack }: Props) {
+export function CategoryView({ category, onStart, onBack, onHome, onMarathon, onLeaderboard }: Props) {
   const [difficulty, setDifficulty] = useState<Difficulty>('default')
   const counts = countByDifficulty(category.questions)
   const filtered = category.questions.filter((q) => q.difficulty === difficulty)
@@ -21,7 +24,9 @@ export function CategoryView({ category, onStart, onBack }: Props) {
   return (
     <AppShell
       onBack={onBack}
-      onHome={onBack}
+      onHome={onHome}
+      onMarathon={onMarathon}
+      onLeaderboard={onLeaderboard}
       backLabel="Kategorien"
       title={category.title}
       badge={category.icon}

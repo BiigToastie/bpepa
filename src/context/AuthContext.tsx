@@ -1,13 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
-import { api, type User } from '../api/client'
+import { api, discordLoginUrl, type User } from '../api/client'
 
 interface AuthContextValue {
   user: User | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, displayName?: string) => Promise<void>
+  loginWithDiscord: (returnTo?: string) => void
   logout: () => Promise<void>
-  requireAuth: () => boolean
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -16,21 +15,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const r = await api.me()
+      setUser(r.user)
+    } catch {
+      setUser(null)
+    }
+  }, [])
+
   useEffect(() => {
-    api.me()
-      .then((r) => setUser(r.user))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false))
-  }, [])
+    refreshUser().finally(() => setLoading(false))
+  }, [refreshUser])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const r = await api.login(email, password)
-    setUser(r.user)
-  }, [])
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('auth') === 'success') {
+      refreshUser()
+      params.delete('auth')
+      const next = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`
+      window.history.replaceState({}, '', next)
+    }
+    const authError = params.get('auth_error')
+    if (authError) {
+      console.warn('Discord Login:', authError)
+      params.delete('auth_error')
+      const next = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`
+      window.history.replaceState({}, '', next)
+    }
+  }, [refreshUser])
 
-  const register = useCallback(async (email: string, password: string, displayName?: string) => {
-    const r = await api.register(email, password, displayName)
-    setUser(r.user)
+  const loginWithDiscord = useCallback((returnTo = '/') => {
+    window.location.href = discordLoginUrl(returnTo)
   }, [])
 
   const logout = useCallback(async () => {
@@ -38,10 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }, [])
 
-  const requireAuth = useCallback(() => !!user, [user])
-
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, requireAuth }}>
+    <AuthContext.Provider value={{ user, loading, loginWithDiscord, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

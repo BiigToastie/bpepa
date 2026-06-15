@@ -12,8 +12,9 @@ interface Props {
   runAnswered: number
   sectionRunStats: Record<string, { correct: number; answered: number }>
   onHome: () => void
-  onContinue: () => void
+  onMarathon: () => void
   onLeaderboard: () => void
+  onContinue: () => void
 }
 
 export function MarathonResult({
@@ -23,8 +24,9 @@ export function MarathonResult({
   runAnswered,
   sectionRunStats,
   onHome,
-  onContinue,
+  onMarathon,
   onLeaderboard,
+  onContinue,
 }: Props) {
   const [state, setState] = useState<MarathonState | null>(null)
   const questionMap = useMemo(
@@ -52,7 +54,7 @@ export function MarathonResult({
     difficulty === 'all' ? 'Alle Schwierigkeiten' : { default: 'Standard', hard: 'Schwer', extreme: 'Extrem' }[difficulty]
 
   return (
-    <AppShell onHome={onHome} width="narrow">
+    <AppShell onHome={onHome} onMarathon={onMarathon} onLeaderboard={onLeaderboard} width="narrow">
       <div className="marathon-result glass-panel">
         <span className="result-emoji">{allMastered ? '🏆' : '💪'}</span>
         <h1 className="result-title">{allMastered ? 'Alles gemeistert!' : 'Durchlauf beendet'}</h1>

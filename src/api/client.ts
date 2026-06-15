@@ -18,19 +18,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export interface User {
   id: number
-  email: string
+  discordId: string
   displayName: string
+  avatarUrl: string | null
 }
 
 export const api = {
   me: () => request<{ user: User }>('/auth/me'),
-  login: (email: string, password: string) =>
-    request<{ user: User }>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-  register: (email: string, password: string, displayName?: string) =>
-    request<{ user: User }>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, displayName }),
-    }),
+  authConfig: () => request<{ discord: boolean; auth: boolean }>('/auth/config'),
   logout: () => request<{ ok: boolean }>('/auth/logout', { method: 'POST' }),
 
   marathonState: (categoryIds: string[], questionMap: Record<string, { id: string }[]>) =>
@@ -64,6 +59,11 @@ export const api = {
     }),
 
   leaderboard: () => request<{ entries: LeaderboardEntry[] }>('/leaderboard'),
+}
+
+export function discordLoginUrl(returnTo = '/') {
+  const q = returnTo && returnTo !== '/' ? `?returnTo=${encodeURIComponent(returnTo)}` : ''
+  return `${API}/auth/discord${q}`
 }
 
 export interface MarathonSection {

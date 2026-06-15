@@ -9,20 +9,32 @@ import {
   authMiddleware,
   authReadyMiddleware,
   clearAuthCookie,
+  formatUser,
   isAuthConfigured,
-  loginUser,
-  registerUser,
   setAuthCookie,
   signToken,
-  validateEmail,
-  validatePassword,
 } from './auth.mjs'
+import {
+  buildAuthorizeUrl,
+  createOAuthState,
+  discordAvatarUrl,
+  discordDisplayName,
+  exchangeCode,
+  fetchDiscordUser,
+  isDiscordConfigured,
+  isGuildMember,
+  redirectAfterAuth,
+} from './discord.mjs'
+import { upsertDiscordUser } from './users.mjs'
 import { getLeaderboard, getMarathonState, recordAnswer, saveRun } from './marathon.mjs'
 
 const root = path.dirname(fileURLToPath(import.meta.url))
 const distDir = path.join(root, '..', 'dist')
 const port = Number(process.env.PORT) || 4173
 const isProd = process.env.NODE_ENV === 'production'
+
+const OAUTH_STATE_COOKIE = 'discord_oauth_state'
+const OAUTH_RETURN_COOKIE = 'discord_oauth_return'
 
 const app = express()
 app.set('trust proxy', 1)
@@ -36,54 +48,84 @@ app.use(cookieParser())
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Zu viele Versuche. Bitte später erneut.' },
 })
 
+const oauthCookieOpts = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: 'lax',
+  maxAge: 10 * 60 * 1000,
+  path: '/',
+}
+
 function healthPayload() {
+  const discord = isDiscordConfigured()
+  const auth = isAuthConfigured()
   return {
     ok: true,
-    auth: isAuthConfigured(),
-    ...(isAuthConfigured() ? {} : { warning: 'JWT_SECRET fehlt — Login/Marathon deaktiviert' }),
+    auth,
+    discord,
+    ...(!auth ? { warning: 'JWT_SECRET oder Discord-OAuth fehlt — Login deaktiviert' } : {}),
   }
 }
 
-app.get('/api/health', (_req, res) => {
-  res.json(healthPayload())
+app.get('/api/health', (_req, res) => res.json(healthPayload()))
+app.get('/health', (_req, res) => res.json(healthPayload()))
+
+app.get('/api/auth/config', (_req, res) => {
+  res.json({ discord: isDiscordConfigured(), auth: isAuthConfigured() })
 })
 
-app.get('/health', (_req, res) => {
-  res.json(healthPayload())
+app.get('/api/auth/discord', authLimiter, (req, res) => {
+  if (!isAuthConfigured()) {
+    return res.status(503).json({ error: 'Discord-Login ist noch nicht konfiguriert.' })
+  }
+  const state = createOAuthState()
+  const returnTo =
+    typeof req.query.returnTo === 'string' && req.query.returnTo.startsWith('/')
+      ? req.query.returnTo.slice(0, 200)
+      : '/'
+  res.cookie(OAUTH_STATE_COOKIE, state, oauthCookieOpts)
+  res.cookie(OAUTH_RETURN_COOKIE, returnTo, oauthCookieOpts)
+  res.redirect(buildAuthorizeUrl(state))
 })
 
-app.post('/api/auth/register', authLimiter, authReadyMiddleware, (req, res) => {
-  const { email, password, displayName } = req.body ?? {}
-  if (!validateEmail(email) || !validatePassword(password)) {
-    return res.status(400).json({ error: 'Ungültige E-Mail oder Passwort (min. 8 Zeichen).' })
-  }
-  const user = registerUser(email, password, displayName)
-  if (!user) {
-    return res.status(409).json({ error: 'Diese E-Mail ist bereits registriert.' })
-  }
-  const token = signToken(user)
-  setAuthCookie(res, token)
-  res.json({ user: { id: user.id, email: user.email, displayName: user.display_name } })
-})
+app.get('/api/auth/discord/callback', authLimiter, async (req, res) => {
+  const fail = (msg) =>
+    res.redirect(`${redirectAfterAuth('/')}?auth_error=${encodeURIComponent(msg)}`)
 
-app.post('/api/auth/login', authLimiter, authReadyMiddleware, (req, res) => {
-  const { email, password } = req.body ?? {}
-  if (!validateEmail(email) || !validatePassword(password)) {
-    return res.status(400).json({ error: 'Ungültige Anmeldedaten.' })
+  try {
+    if (!isAuthConfigured()) return fail('Login nicht konfiguriert')
+    const { code, state } = req.query
+    if (!code || !state || state !== req.cookies?.[OAUTH_STATE_COOKIE]) {
+      return fail('Ungültige OAuth-Antwort')
+    }
+    res.clearCookie(OAUTH_STATE_COOKIE, { path: '/' })
+    const returnTo = req.cookies?.[OAUTH_RETURN_COOKIE] || '/'
+    res.clearCookie(OAUTH_RETURN_COOKIE, { path: '/' })
+
+    const tokenData = await exchangeCode(String(code))
+    const discordUser = await fetchDiscordUser(tokenData.access_token)
+
+    if (!(await isGuildMember(discordUser.id))) {
+      return fail('Du musst Mitglied des Discord-Servers sein.')
+    }
+
+    const user = upsertDiscordUser({
+      discordId: discordUser.id,
+      displayName: discordDisplayName(discordUser),
+      avatarUrl: discordAvatarUrl(discordUser),
+    })
+    setAuthCookie(res, signToken(user))
+    res.redirect(`${redirectAfterAuth(returnTo)}?auth=success`)
+  } catch (e) {
+    console.log('Discord OAuth Fehler:', e.message)
+    fail('Discord-Anmeldung fehlgeschlagen')
   }
-  const user = loginUser(email, password)
-  if (!user) {
-    return res.status(401).json({ error: 'Ungültige Anmeldedaten.' })
-  }
-  const token = signToken(user)
-  setAuthCookie(res, token)
-  res.json({ user: { id: user.id, email: user.email, displayName: user.display_name } })
 })
 
 app.post('/api/auth/logout', (_req, res) => {
@@ -91,14 +133,8 @@ app.post('/api/auth/logout', (_req, res) => {
   res.json({ ok: true })
 })
 
-app.get('/api/auth/me', authReadyMiddleware, authMiddleware, (req, res) => {
-  res.json({
-    user: {
-      id: req.user.id,
-      email: req.user.email,
-      displayName: req.user.display_name,
-    },
-  })
+app.get('/api/auth/me', authMiddleware, (req, res) => {
+  res.json({ user: formatUser(req.user) })
 })
 
 app.post('/api/marathon/state', authReadyMiddleware, authMiddleware, (req, res) => {
@@ -151,10 +187,9 @@ if (isProd && fs.existsSync(distDir)) {
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`BWT Trainer bereit auf http://0.0.0.0:${port}`)
   if (isAuthConfigured()) {
-    console.log('Auth: JWT_SECRET konfiguriert')
+    console.log('Auth: Discord OAuth + JWT aktiv')
   } else {
-    console.log('WARNUNG: JWT_SECRET fehlt oder ist zu kurz (<32) — Login/Marathon deaktiviert')
-    console.log('Setze JWT_SECRET in KynxGate Variables (openssl rand -base64 48)')
+    console.log('WARNUNG: JWT_SECRET und/oder Discord-OAuth fehlt — Login deaktiviert')
   }
 })
 

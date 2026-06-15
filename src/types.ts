@@ -27,7 +27,6 @@ export interface Category {
 
 export type View =
   | { screen: 'home' }
-  | { screen: 'auth'; redirect?: 'marathon-setup' | 'leaderboard' }
   | { screen: 'category'; categoryId: string }
   | { screen: 'quiz'; categoryId: string; difficulty: Difficulty; questionIndex: number }
   | { screen: 'result'; categoryId: string; difficulty: Difficulty; score: number; total: number }

@@ -4,37 +4,21 @@ import { categories } from '../data/exercises'
 import { getCategoryProgress, resetProgress } from '../hooks/useProgress'
 import { AppShell } from './AppShell'
 
-import type { User } from '../api/client'
-
 interface Props {
-  user: User | null
   onSelectCategory: (id: string) => void
   onStartMarathon: () => void
+  onHome: () => void
+  onMarathon: () => void
   onLeaderboard: () => void
 }
 
-const FEATURES = [
-  {
-    step: '01',
-    icon: '🎯',
-    title: 'Kategorie wählen',
-    text: '7 Aufgabentypen wie im echten BPS-Test – von Wort-Analogien bis Textaufgaben.',
-  },
-  {
-    step: '02',
-    icon: '⚡',
-    title: 'Schwierigkeit setzen',
-    text: 'Standard, Schwer oder Extrem – du bestimmst das Tempo und den Anspruch.',
-  },
-  {
-    step: '03',
-    icon: '💡',
-    title: 'Antwort antippen',
-    text: 'Kein Tippen nötig – wähle einfach A, B, C oder D und lerne aus der Erklärung.',
-  },
-]
-
-export function Home({ user, onSelectCategory, onStartMarathon, onLeaderboard }: Props) {
+export function Home({
+  onSelectCategory,
+  onStartMarathon,
+  onHome,
+  onMarathon,
+  onLeaderboard,
+}: Props) {
   const categoriesRef = useRef<HTMLElement>(null)
   const totalQuestions = categories.reduce((sum, c) => sum + c.questions.length, 0)
   const totalDone = categories.reduce((sum, c) => {
@@ -51,18 +35,8 @@ export function Home({ user, onSelectCategory, onStartMarathon, onLeaderboard }:
   }
 
   return (
-    <AppShell width="full">
+    <AppShell onHome={onHome} onMarathon={onMarathon} onLeaderboard={onLeaderboard} width="full">
       <div className="landing">
-        <nav className="landing-nav" aria-label="Hauptnavigation">
-          <button type="button" className="nav-brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <span className="nav-brand-icon">🧠</span>
-            <span className="nav-brand-text">BWT Trainer</span>
-          </button>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={onLeaderboard}>
-            Leaderboard
-          </button>
-        </nav>
-
         <section className="landing-hero">
           <div className="hero-content">
             <span className="hero-badge">Berufspsychologischer Service · BPS</span>
@@ -82,9 +56,6 @@ export function Home({ user, onSelectCategory, onStartMarathon, onLeaderboard }:
                 Einzelkategorien
               </button>
             </div>
-            {user && (
-              <p className="hero-user">Eingeloggt als <strong>{user.displayName}</strong></p>
-            )}
             <div className="hero-stats">
               <div className="hero-stat">
                 <strong>{totalQuestions}</strong>
@@ -139,7 +110,11 @@ export function Home({ user, onSelectCategory, onStartMarathon, onLeaderboard }:
             <h2>In drei Schritten fit werden</h2>
           </div>
           <div className="features-grid">
-            {FEATURES.map((f) => (
+            {[
+              { step: '01', icon: '🎯', title: 'Kategorie wählen', text: '7 Aufgabentypen wie im echten BPS-Test.' },
+              { step: '02', icon: '⚡', title: 'Schwierigkeit setzen', text: 'Standard, Schwer oder Extrem.' },
+              { step: '03', icon: '💡', title: 'Antwort antippen', text: 'A, B, C oder D – sofort Feedback.' },
+            ].map((f) => (
               <article key={f.step} className="feature-card glass-panel">
                 <span className="feature-step">{f.step}</span>
                 <span className="feature-icon">{f.icon}</span>

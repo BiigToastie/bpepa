@@ -4,9 +4,12 @@ import { AppShell } from './AppShell'
 
 interface Props {
   onBack: () => void
+  onHome: () => void
+  onMarathon: () => void
+  onLeaderboard: () => void
 }
 
-export function LeaderboardView({ onBack }: Props) {
+export function LeaderboardView({ onBack, onHome, onMarathon, onLeaderboard }: Props) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -20,7 +23,16 @@ export function LeaderboardView({ onBack }: Props) {
   }, [])
 
   return (
-    <AppShell onBack={onBack} backLabel="Zurück" title="Leaderboard" badge="🏅" width="narrow">
+    <AppShell
+      onBack={onBack}
+      onHome={onHome}
+      onMarathon={onMarathon}
+      onLeaderboard={onLeaderboard}
+      backLabel="Zurück"
+      title="Leaderboard"
+      badge="🏅"
+      width="narrow"
+    >
       <div className="leaderboard-panel glass-panel">
         <p className="leaderboard-hint">
           Rangliste nach korrekt gemeisterten Aufgaben im Marathon-Modus.

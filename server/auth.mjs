@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
 import { db } from './db.mjs'
+import { findUserById, formatUser } from './users.mjs'
+import { isDiscordConfigured } from './discord.mjs'
 
 const JWT_SECRET_RAW = process.env.JWT_SECRET?.trim()
 const JWT_SECRET =
@@ -11,43 +12,29 @@ const JWT_SECRET =
       : 'dev-only-fallback-secret-min-32-chars'
 
 export function isAuthConfigured() {
-  return Boolean(JWT_SECRET)
+  return Boolean(JWT_SECRET && isDiscordConfigured())
 }
 
 export function authReadyMiddleware(req, res, next) {
   if (!JWT_SECRET) {
     return res.status(503).json({
-      error: 'Login derzeit nicht verfügbar: JWT_SECRET fehlt in den Server-Umgebungsvariablen (min. 32 Zeichen).',
+      error: 'Login nicht verfügbar: JWT_SECRET fehlt (min. 32 Zeichen in den Umgebungsvariablen).',
+    })
+  }
+  if (!isDiscordConfigured()) {
+    return res.status(503).json({
+      error: 'Discord-Login nicht konfiguriert: DISCORD_CLIENT_ID und DISCORD_CLIENT_SECRET setzen.',
     })
   }
   next()
 }
 
 const TOKEN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
-const BCRYPT_ROUNDS = 12
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-export function validateEmail(email) {
-  return typeof email === 'string' && email.length <= 254 && emailRegex.test(email.trim())
-}
-
-export function validatePassword(password) {
-  return typeof password === 'string' && password.length >= 8 && password.length <= 128
-}
-
-export function hashPassword(password) {
-  return bcrypt.hashSync(password, BCRYPT_ROUNDS)
-}
-
-export function verifyPassword(password, hash) {
-  return bcrypt.compareSync(password, hash)
-}
 
 export function signToken(user) {
   if (!JWT_SECRET) throw new Error('JWT_SECRET nicht konfiguriert')
   return jwt.sign(
-    { sub: user.id, email: user.email },
+    { sub: user.id, discordId: user.discord_id },
     JWT_SECRET,
     { expiresIn: '7d', algorithm: 'HS256' },
   )
@@ -71,7 +58,7 @@ export function authMiddleware(req, res, next) {
   if (!payload?.sub) {
     return res.status(401).json({ error: 'Sitzung abgelaufen' })
   }
-  const user = db.prepare('SELECT id, email, display_name FROM users WHERE id = ?').get(payload.sub)
+  const user = findUserById(payload.sub)
   if (!user) {
     return res.status(401).json({ error: 'Benutzer nicht gefunden' })
   }
@@ -93,24 +80,4 @@ export function clearAuthCookie(res) {
   res.clearCookie('bwt_token', { path: '/' })
 }
 
-export function registerUser(email, password, displayName) {
-  const normalizedEmail = email.trim().toLowerCase()
-  const name = (displayName?.trim() || normalizedEmail.split('@')[0]).slice(0, 40)
-  const hash = hashPassword(password)
-  try {
-    const result = db
-      .prepare('INSERT INTO users (email, password_hash, display_name) VALUES (?, ?, ?)')
-      .run(normalizedEmail, hash, name)
-    return db.prepare('SELECT id, email, display_name FROM users WHERE id = ?').get(result.lastInsertRowid)
-  } catch (e) {
-    if (e.code === 'SQLITE_CONSTRAINT_UNIQUE') return null
-    throw e
-  }
-}
-
-export function loginUser(email, password) {
-  const normalizedEmail = email.trim().toLowerCase()
-  const row = db.prepare('SELECT id, email, display_name, password_hash FROM users WHERE email = ?').get(normalizedEmail)
-  if (!row || !verifyPassword(password, row.password_hash)) return null
-  return { id: row.id, email: row.email, display_name: row.display_name }
-}
+export { formatUser }

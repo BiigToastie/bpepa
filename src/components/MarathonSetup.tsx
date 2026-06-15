@@ -6,16 +6,18 @@ import { ALL_CATEGORY_IDS, buildQuestionMap, shuffle } from '../data/marathon'
 import type { MarathonDifficulty } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { AppShell } from './AppShell'
+import { DiscordLoginButton } from './ProfileDropdown'
 
 interface Props {
   onBack: () => void
+  onHome: () => void
+  onMarathon: () => void
+  onLeaderboard: () => void
   onStart: (params: {
     categoryIds: string[]
     difficulty: MarathonDifficulty
     queue: { categoryId: string; questionId: string }[]
   }) => void
-  onLogin: () => void
-  onLeaderboard: () => void
 }
 
 const DIFFICULTY_OPTIONS: { id: MarathonDifficulty; label: string }[] = [
@@ -25,8 +27,8 @@ const DIFFICULTY_OPTIONS: { id: MarathonDifficulty; label: string }[] = [
   { id: 'all', label: 'Alle Schwierigkeiten' },
 ]
 
-export function MarathonSetup({ onBack, onStart, onLogin, onLeaderboard }: Props) {
-  const { user } = useAuth()
+export function MarathonSetup({ onBack, onHome, onMarathon, onLeaderboard, onStart }: Props) {
+  const { user, loginWithDiscord } = useAuth()
   const [selected, setSelected] = useState<string[]>([...ALL_CATEGORY_IDS])
   const [difficulty, setDifficulty] = useState<MarathonDifficulty>('default')
   const [state, setState] = useState<MarathonState | null>(null)
@@ -59,7 +61,7 @@ export function MarathonSetup({ onBack, onStart, onLogin, onLeaderboard }: Props
 
   function handleStart() {
     if (!user) {
-      onLogin()
+      loginWithDiscord('/?intent=marathon')
       return
     }
     if (selected.length === 0) return
@@ -78,6 +80,9 @@ export function MarathonSetup({ onBack, onStart, onLogin, onLeaderboard }: Props
   return (
     <AppShell
       onBack={onBack}
+      onHome={onHome}
+      onMarathon={onMarathon}
+      onLeaderboard={onLeaderboard}
       backLabel="Start"
       title="Startall Marathon"
       badge="🏁 Hauptmodus"
@@ -91,10 +96,8 @@ export function MarathonSetup({ onBack, onStart, onLogin, onLeaderboard }: Props
 
         {!user && (
           <div className="marathon-login-banner">
-            <p>Anmeldung erforderlich für Fortschritt und Leaderboard.</p>
-            <button type="button" className="btn btn--primary btn--sm" onClick={onLogin}>
-              Jetzt anmelden
-            </button>
+            <p>Melde dich mit Discord an, um Fortschritt und Leaderboard zu speichern.</p>
+            <DiscordLoginButton returnTo="/?intent=marathon" className="btn--sm" />
           </div>
         )}
 
