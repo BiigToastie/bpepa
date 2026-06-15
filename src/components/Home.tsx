@@ -57,7 +57,7 @@ export function Home({ onSelectCategory }: Props) {
               <div className="category-card-icon">{cat.icon}</div>
               <div className="category-card-content">
                 <h3>{cat.shortTitle}</h3>
-                <p>{cat.questions.length} Aufgaben</p>
+                <p>{cat.questions.length} Aufgaben · 3 Stufen</p>
                 {done > 0 && (
                   <div className="mini-progress">
                     <div className="mini-progress-bar">

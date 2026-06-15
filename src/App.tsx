@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { View } from './types'
-import { getCategory } from './data/exercises'
+import { getCategory, getCategoryQuestions } from './data/exercises'
+import { DIFFICULTY_LABELS } from './data/difficulty'
 import { markQuestionComplete, saveCategoryScore } from './hooks/useProgress'
 import { Home } from './components/Home'
 import { CategoryView } from './components/CategoryView'
@@ -30,8 +31,8 @@ export default function App() {
       <CategoryView
         category={category}
         onBack={goHome}
-        onStart={() =>
-          setView({ screen: 'quiz', categoryId: view.categoryId, questionIndex: 0 })
+        onStart={(difficulty) =>
+          setView({ screen: 'quiz', categoryId: view.categoryId, difficulty, questionIndex: 0 })
         }
       />
     )
@@ -40,7 +41,8 @@ export default function App() {
   if (view.screen === 'quiz') {
     const category = getCategory(view.categoryId)
     if (!category) { goHome(); return null }
-    const question = category.questions[view.questionIndex]
+    const questions = getCategoryQuestions(view.categoryId, view.difficulty)
+    const question = questions[view.questionIndex]
     if (!question) { goHome(); return null }
 
     return (
@@ -49,28 +51,34 @@ export default function App() {
           <button className="back-btn" onClick={goHome} aria-label="Zurück">
             ←
           </button>
-          <span className="quiz-category">{category.icon} {category.shortTitle}</span>
+          <span className="quiz-category">
+            {category.icon} {category.shortTitle}
+            <span className={`difficulty-badge difficulty-badge--${view.difficulty}`}>
+              {DIFFICULTY_LABELS[view.difficulty]}
+            </span>
+          </span>
         </header>
         <QuestionCard
           key={question.id}
           question={question}
           questionNumber={view.questionIndex + 1}
-          totalQuestions={category.questions.length}
+          totalQuestions={questions.length}
           onAnswer={(correct) => {
             markQuestionComplete(question.id, correct)
             const newScore = correct ? sessionScore + 1 : sessionScore
             setSessionScore(newScore)
 
             const nextIndex = view.questionIndex + 1
-            if (nextIndex < category.questions.length) {
+            if (nextIndex < questions.length) {
               setView({ ...view, questionIndex: nextIndex })
             } else {
-              saveCategoryScore(view.categoryId, newScore, category.questions.length)
+              saveCategoryScore(`${view.categoryId}-${view.difficulty}`, newScore, questions.length)
               setView({
                 screen: 'result',
                 categoryId: view.categoryId,
+                difficulty: view.difficulty,
                 score: newScore,
-                total: category.questions.length,
+                total: questions.length,
               })
             }
           }}
@@ -89,7 +97,9 @@ export default function App() {
         <div className="result-card">
           <span className="result-emoji">{emoji}</span>
           <h1>Geschafft!</h1>
-          <p className="result-category">{category?.title}</p>
+          <p className="result-category">
+            {category?.title} · {DIFFICULTY_LABELS[view.difficulty]}
+          </p>
 
           <div className="result-score">
             <span className="result-number">{view.score}</span>
@@ -109,10 +119,16 @@ export default function App() {
           <button
             className="start-btn"
             onClick={() =>
-              setView({ screen: 'quiz', categoryId: view.categoryId, questionIndex: 0 })
+              setView({ screen: 'quiz', categoryId: view.categoryId, difficulty: view.difficulty, questionIndex: 0 })
             }
           >
             Nochmal üben
+          </button>
+          <button
+            className="secondary-btn"
+            onClick={() => setView({ screen: 'category', categoryId: view.categoryId })}
+          >
+            Anderen Schwierigkeitsgrad
           </button>
           <button className="secondary-btn" onClick={goHome}>
             Alle Kategorien

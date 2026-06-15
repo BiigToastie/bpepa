@@ -1,14 +1,20 @@
-import type { Category } from '../types'
+import { useState } from 'react'
+import type { Category, Difficulty } from '../types'
+import { countByDifficulty } from '../data/difficulty'
 import { getCategoryProgress } from '../hooks/useProgress'
+import { DifficultySelector } from './DifficultySelector'
 
 interface Props {
   category: Category
-  onStart: () => void
+  onStart: (difficulty: Difficulty) => void
   onBack: () => void
 }
 
 export function CategoryView({ category, onStart, onBack }: Props) {
-  const ids = category.questions.map((q) => q.id)
+  const [difficulty, setDifficulty] = useState<Difficulty>('default')
+  const counts = countByDifficulty(category.questions)
+  const filtered = category.questions.filter((q) => q.difficulty === difficulty)
+  const ids = filtered.map((q) => q.id)
   const { done, total, correct } = getCategoryProgress(category.id, ids)
 
   return (
@@ -26,9 +32,11 @@ export function CategoryView({ category, onStart, onBack }: Props) {
       <div className="category-body">
         <p className="category-desc">{category.description}</p>
 
+        <DifficultySelector value={difficulty} counts={counts} onChange={setDifficulty} />
+
         <div className="stats-row">
           <div className="stat-card">
-            <span className="stat-value">{category.questions.length}</span>
+            <span className="stat-value">{filtered.length}</span>
             <span className="stat-label">Aufgaben</span>
           </div>
           <div className="stat-card">
@@ -44,14 +52,14 @@ export function CategoryView({ category, onStart, onBack }: Props) {
         <div className="info-box">
           <h3>So funktioniert's</h3>
           <ul>
+            <li>Wähle deinen Schwierigkeitsgrad</li>
             <li>Lies die Aufgabe aufmerksam</li>
-            <li>Wähle oder tippe deine Antwort ein</li>
             <li>Du erhältst sofort Feedback mit Erklärung</li>
             <li>Nutze Tipps, wenn du nicht weiterkommst</li>
           </ul>
         </div>
 
-        <button className="start-btn" onClick={onStart}>
+        <button className="start-btn" onClick={() => onStart(difficulty)} disabled={filtered.length === 0}>
           {done > 0 ? 'Weiter üben' : 'Übung starten'}
         </button>
       </div>
