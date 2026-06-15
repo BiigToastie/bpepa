@@ -45,11 +45,11 @@ export function CategoryView({ category, onStart, onBack }: Props) {
             </div>
           </div>
           <div className="info-box info-box--flat">
-            <h3>Tipps für diese Übung</h3>
+            <h3>So antwortest du</h3>
             <ul>
-              <li>Nimm dir Zeit – unter Druck üben hilft später</li>
-              <li>Nutze Tipps, bevor du die Lösung aufgibst</li>
-              <li>Lies die Erklärung auch bei richtigen Antworten</li>
+              <li>Einfach A, B, C oder D antippen – keine Eingabe nötig</li>
+              <li>Am PC gehen auch die Tasten A–D</li>
+              <li>Du siehst sofort, ob es stimmt – mit Erklärung</li>
             </ul>
           </div>
         </div>

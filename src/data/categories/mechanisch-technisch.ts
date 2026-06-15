@@ -82,9 +82,16 @@ export const mechQuestions: Question[] = [
     correctAnswer: 'c', explanation: 'Maximaler Hebelarm = geringstes Drehmoment nötig.',
   },
   {
-    id: 'mech-n', difficulty: 'extreme', type: 'text-input', title: 'Geschwindigkeit',
-    prompt: 'Rad Ø 30 cm, 10 Umdrehungen/s. Wie viele cm/s am Rand? (π ≈ 3,14, runden)',
-    correctAnswer: '942', acceptVariants: ['942', '942cm', '942 cm'],
-    explanation: 'Umfang ≈ 94,2 cm × 10 = 942 cm/s.', hint: 'Umfang × Umdrehungen.',
+    id: 'mech-n', difficulty: 'extreme', type: 'multiple-choice', title: 'Geschwindigkeit',
+    prompt: 'Rad Ø 30 cm, 10 Umdrehungen/s. Wie viele cm/s am Rand? (π ≈ 3,14)',
+    options: [
+      { id: 'a', label: '94,2 cm/s' },
+      { id: 'b', label: '314 cm/s' },
+      { id: 'c', label: '942 cm/s' },
+      { id: 'd', label: '1 884 cm/s' },
+    ],
+    correctAnswer: 'c',
+    explanation: 'Umfang ≈ 94,2 cm × 10 = 942 cm/s.',
+    hint: 'Umfang × Umdrehungen.',
   },
 ]

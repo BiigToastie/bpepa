@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Question } from '../types'
 import { QuestionVisual } from './QuestionVisual'
 
@@ -9,59 +9,40 @@ interface Props {
   totalQuestions: number
 }
 
-function normalizeAnswer(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '')
-    .replace(/,/g, '.')
-    .replace(/€/g, '')
-    .replace(/eur/g, '')
-    .replace(/euro/g, '')
-    .replace(/meter/g, 'm')
-    .replace(/quadratmeter/g, 'm2')
-    .replace(/qm/g, 'm2')
-    .replace(/stunden/g, 'h')
-    .replace(/[^a-z0-9./\-+]/g, '')
-}
-
-function checkAnswer(question: Question, userAnswer: string | string[]): boolean {
-  if (question.type === 'multiple-choice') {
-    return userAnswer === question.correctAnswer
-  }
-  if (question.type === 'sequence-input') {
-    const answers = userAnswer as string[]
-    const correct = question.correctAnswer as string[]
-    return answers.every((a, i) => normalizeAnswer(a) === normalizeAnswer(correct[i] ?? ''))
-  }
-  const normalized = normalizeAnswer(userAnswer as string)
-  const variants = question.acceptVariants ?? [question.correctAnswer as string]
-  return variants.some((v) => normalizeAnswer(v) === normalized)
-}
-
 export function QuestionCard({ question, onAnswer, questionNumber, totalQuestions }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
-  const [textInput, setTextInput] = useState('')
-  const [seqInputs, setSeqInputs] = useState(['', ''])
   const [submitted, setSubmitted] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
   const [showHint, setShowHint] = useState(false)
 
-  function handleSubmit() {
-    let answer: string | string[]
-    if (question.type === 'multiple-choice') {
-      if (!selected) return
-      answer = selected
-    } else if (question.type === 'sequence-input') {
-      if (seqInputs.some((s) => !s.trim())) return
-      answer = seqInputs
-    } else {
-      if (!textInput.trim()) return
-      answer = textInput
+  useEffect(() => {
+    setSelected(null)
+    setSubmitted(false)
+    setShowHint(false)
+  }, [question.id])
+
+  useEffect(() => {
+    if (submitted) return
+
+    function onKey(e: KeyboardEvent) {
+      const key = e.key.toLowerCase()
+      const match = question.options.find((o) => o.id === key)
+      if (match) handlePick(match.id)
     }
-    setIsCorrect(checkAnswer(question, answer))
+
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+
+  function handlePick(optionId: string) {
+    if (submitted) return
+    setSelected(optionId)
+    const correct = optionId === question.correctAnswer
+    setIsCorrect(correct)
     setSubmitted(true)
   }
+
+  const optionLetters = question.options.map((o) => o.id.toUpperCase()).join(' · ')
 
   return (
     <div className="question-card">
@@ -90,62 +71,20 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
 
       {!submitted && (
         <div className="answer-area">
-          {question.type === 'multiple-choice' && question.options && (
-            <div className="options-grid">
-              {question.options.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  className={`option-btn ${selected === opt.id ? 'selected' : ''}`}
-                  onClick={() => setSelected(opt.id)}
-                >
-                  <span className="option-letter">{opt.id.toUpperCase()}</span>
-                  <span className="option-label">{opt.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {question.type === 'text-input' && (
-            <input
-              type="text"
-              className="text-input"
-              placeholder="Deine Antwort eingeben…"
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-              inputMode="decimal"
-              autoComplete="off"
-            />
-          )}
-
-          {question.type === 'sequence-input' && (
-            <div className="sequence-inputs">
-              <input
-                type="text"
-                className="text-input text-input--short"
-                placeholder="1. Zahl"
-                value={seqInputs[0]}
-                onChange={(e) => setSeqInputs([e.target.value, seqInputs[1]])}
-                inputMode="numeric"
-                autoComplete="off"
-              />
-              <input
-                type="text"
-                className="text-input text-input--short"
-                placeholder="2. Zahl"
-                value={seqInputs[1]}
-                onChange={(e) => setSeqInputs([seqInputs[0], e.target.value])}
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                inputMode="numeric"
-                autoComplete="off"
-              />
-            </div>
-          )}
-
-          <button type="button" className="btn btn--secondary btn--block" onClick={handleSubmit}>
-            Antwort prüfen
-          </button>
+          <p className="answer-hint">Tippe eine Antwort – {optionLetters}</p>
+          <div className="options-grid">
+            {question.options.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={`option-btn ${selected === opt.id ? 'selected' : ''}`}
+                onClick={() => handlePick(opt.id)}
+              >
+                <span className="option-letter">{opt.id.toUpperCase()}</span>
+                <span className="option-label">{opt.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -153,6 +92,12 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
         <div className={`feedback ${isCorrect ? 'feedback--correct' : 'feedback--wrong'}`}>
           <div className="feedback-icon">{isCorrect ? '✓' : '✗'}</div>
           <h3>{isCorrect ? 'Richtig!' : 'Leider falsch'}</h3>
+          {!isCorrect && (
+            <p className="feedback-answer">
+              Richtig wäre <strong>{question.correctAnswer.toUpperCase()}</strong>:{' '}
+              {question.options.find((o) => o.id === question.correctAnswer)?.label}
+            </p>
+          )}
           <p>{question.explanation}</p>
           <button type="button" className="btn btn--primary btn--block" onClick={() => onAnswer(isCorrect)}>
             {questionNumber < totalQuestions ? 'Nächste Aufgabe →' : 'Ergebnis anzeigen'}

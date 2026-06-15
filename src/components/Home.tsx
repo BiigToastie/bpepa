@@ -24,8 +24,8 @@ const FEATURES = [
   {
     step: '03',
     icon: '💡',
-    title: 'Sofort verstehen',
-    text: 'Jede Antwort mit Erklärung und optionalem Tipp – so lernst du wirklich.',
+    title: 'Antwort antippen',
+    text: 'Kein Tippen nötig – wähle einfach A, B, C oder D und lerne aus der Erklärung.',
   },
 ]
 

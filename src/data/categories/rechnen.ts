@@ -1,76 +1,54 @@
 import type { Question } from '../../types'
 
+const mc = (
+  id: string,
+  difficulty: Question['difficulty'],
+  title: string,
+  prompt: string,
+  options: [string, string, string, string],
+  correct: 'a' | 'b' | 'c' | 'd',
+  explanation: string,
+  extra?: Partial<Question>,
+): Question => ({
+  id, difficulty, type: 'multiple-choice', title, prompt,
+  options: options.map((label, i) => ({ id: ['a', 'b', 'c', 'd'][i], label })),
+  correctAnswer: correct, explanation, ...extra,
+})
+
 export const rechnenQuestions: Question[] = [
-  {
-    id: 'rech-a', difficulty: 'default', type: 'text-input', title: 'Addition',
-    prompt: '527 + 863 = ?', correctAnswer: '1390', acceptVariants: ['1390', '1 390', '1.390'], explanation: '527 + 863 = 1 390',
-  },
-  {
-    id: 'rech-b', difficulty: 'default', type: 'text-input', title: 'Subtraktion',
-    prompt: '8 342 − 537 = ?', correctAnswer: '7805', acceptVariants: ['7805', '7 805', '7.805'], explanation: '8 342 − 537 = 7 805',
-  },
-  {
-    id: 'rech-c', difficulty: 'default', type: 'text-input', title: 'Multiplikation',
-    prompt: '76 423 × 91 = ?', correctAnswer: '6954493', acceptVariants: ['6954493', '6 954 493', '6.954.493'], explanation: '76 423 × 91 = 6 954 493',
-  },
-  {
-    id: 'rech-d', difficulty: 'default', type: 'text-input', title: 'Division',
-    prompt: '2 584 : 34 = ?', correctAnswer: '76', acceptVariants: ['76'], explanation: '2 584 ÷ 34 = 76',
-  },
-  {
-    id: 'rech-e', difficulty: 'default', type: 'text-input', title: 'Addition II',
-    prompt: '1 456 + 2 789 = ?', correctAnswer: '4245', acceptVariants: ['4245', '4 245', '4.245'], explanation: '1 456 + 2 789 = 4 245',
-  },
-  {
-    id: 'rech-bruch-a', difficulty: 'default', type: 'text-input', title: 'Bruchrechnung A',
-    prompt: '¼ − ⅛ = ? (als gekürzter Bruch, z. B. 1/8)',
-    correctAnswer: '1/8', acceptVariants: ['1/8', '1 / 8', '⅛'], explanation: '¼ − ⅛ = ²⁄₈ − ⅛ = ⅛',
-  },
-  {
-    id: 'rech-dez-a', difficulty: 'default', type: 'text-input', title: 'Dezimalrechnung A',
-    prompt: '1 027,38 − 16,5213 = ?', correctAnswer: '1010.8587', acceptVariants: ['1010.8587', '1010,8587', '1 010,8587'], explanation: '1 027,38 − 16,5213 = 1 010,8587',
-  },
-  {
-    id: 'rech-dez-b', difficulty: 'default', type: 'text-input', title: 'Dezimalrechnung B',
-    prompt: '9,3 × 1,9 = ?', correctAnswer: '17.67', acceptVariants: ['17.67', '17,67'], explanation: '9,3 × 1,9 = 17,67',
-  },
-  {
-    id: 'rech-f', difficulty: 'hard', type: 'text-input', title: 'Multiplikation II',
-    prompt: '347 × 28 = ?', correctAnswer: '9716', acceptVariants: ['9716', '9 716', '9.716'], explanation: '347 × 28 = 9 716',
-  },
-  {
-    id: 'rech-g', difficulty: 'hard', type: 'text-input', title: 'Division II',
-    prompt: '4 928 : 56 = ?', correctAnswer: '88', acceptVariants: ['88'], explanation: '4 928 ÷ 56 = 88',
-  },
-  {
-    id: 'rech-bruch-b', difficulty: 'hard', type: 'text-input', title: 'Bruchrechnung B',
-    prompt: '¼ + ²⁄₁₂ + ⁵⁄₆ = ? (als gemischte Zahl, z. B. 1 1/4)',
-    correctAnswer: '1 1/4', acceptVariants: ['1 1/4', '1 1 / 4', '5/4', '1.25', '1,25'], explanation: '¼ + ⅙ + ⁵⁄₆ = ¼ + 1 = 1 ¼',
-  },
-  {
-    id: 'rech-h', difficulty: 'hard', type: 'text-input', title: 'Bruchrechnung C',
-    prompt: '⅔ × ¾ = ? (als gekürzter Bruch)',
-    correctAnswer: '1/2', acceptVariants: ['1/2', '1 / 2', '½', '0.5', '0,5'], explanation: '⅔ × ¾ = ⁶⁄₁₂ = ½',
-  },
-  {
-    id: 'rech-i', difficulty: 'hard', type: 'text-input', title: 'Dezimalrechnung C',
-    prompt: '12,5 × 3,6 = ?', correctAnswer: '45', acceptVariants: ['45', '45.0', '45,0'], explanation: '12,5 × 3,6 = 45',
-  },
-  {
-    id: 'rech-j', difficulty: 'extreme', type: 'text-input', title: 'Multiplikation III',
-    prompt: '1 847 × 63 = ?', correctAnswer: '116361', acceptVariants: ['116361', '116 361', '116.361'], explanation: '1 847 × 63 = 116 361',
-  },
-  {
-    id: 'rech-k', difficulty: 'extreme', type: 'text-input', title: 'Division III',
-    prompt: '15 876 : 47 = ?', correctAnswer: '338', acceptVariants: ['338'], explanation: '15 876 ÷ 47 = 338',
-  },
-  {
-    id: 'rech-l', difficulty: 'extreme', type: 'text-input', title: 'Bruchrechnung D',
-    prompt: '2 ¼ − 1 ½ = ? (als gekürzter Bruch, z. B. 3/4)',
-    correctAnswer: '3/4', acceptVariants: ['3/4', '3 / 4', '¾', '0.75', '0,75'], explanation: '2¼ − 1½ = ⁹⁄₄ − ⁶⁄₄ = ¾',
-  },
-  {
-    id: 'rech-m', difficulty: 'extreme', type: 'text-input', title: 'Dezimalrechnung D',
-    prompt: '47,85 × 2,4 = ?', correctAnswer: '114.84', acceptVariants: ['114.84', '114,84'], explanation: '47,85 × 2,4 = 114,84',
-  },
+  mc('rech-a', 'default', 'Addition', '527 + 863 = ?',
+    ['1 280', '1 390', '1 490', '1 350'], 'b', '527 + 863 = 1 390'),
+  mc('rech-b', 'default', 'Subtraktion', '8 342 − 537 = ?',
+    ['7 705', '7 805', '7 905', '8 805'], 'b', '8 342 − 537 = 7 805'),
+  mc('rech-c', 'default', 'Multiplikation', '76 423 × 91 = ?',
+    ['6 854 493', '6 954 493', '695 449', '6 754 493'], 'b', '76 423 × 91 = 6 954 493'),
+  mc('rech-d', 'default', 'Division', '2 584 : 34 = ?',
+    ['66', '76', '86', '74'], 'b', '2 584 ÷ 34 = 76'),
+  mc('rech-e', 'default', 'Addition II', '1 456 + 2 789 = ?',
+    ['4 145', '4 245', '4 345', '3 245'], 'b', '1 456 + 2 789 = 4 245'),
+  mc('rech-bruch-a', 'default', 'Bruchrechnung A', '¼ − ⅛ = ?',
+    ['¼', '⅛', '⅜', '½'], 'b', '¼ − ⅛ = ⅛'),
+  mc('rech-dez-a', 'default', 'Dezimalrechnung A', '1 027,38 − 16,5213 = ?',
+    ['1 000,8587', '1 010,8587', '1 011,9013', '1 043,9013'], 'b',
+    '1 027,38 − 16,5213 = 1 010,8587'),
+  mc('rech-dez-b', 'default', 'Dezimalrechnung B', '9,3 × 1,9 = ?',
+    ['16,67', '17,67', '18,67', '17,27'], 'b', '9,3 × 1,9 = 17,67'),
+  mc('rech-f', 'hard', 'Multiplikation II', '347 × 28 = ?',
+    ['9 616', '9 716', '9 816', '8 716'], 'b', '347 × 28 = 9 716'),
+  mc('rech-g', 'hard', 'Division II', '4 928 : 56 = ?',
+    ['78', '88', '98', '84'], 'b', '4 928 ÷ 56 = 88'),
+  mc('rech-bruch-b', 'hard', 'Bruchrechnung B', '¼ + ²⁄₁₂ + ⁵⁄₆ = ?',
+    ['1', '1 ¼', '1 ½', '¾'], 'b', '¼ + ⅙ + ⁵⁄₆ = 1 ¼'),
+  mc('rech-h', 'hard', 'Bruchrechnung C', '⅔ × ¾ = ?',
+    ['¼', '½', '⅜', '⅝'], 'b', '⅔ × ¾ = ½'),
+  mc('rech-i', 'hard', 'Dezimalrechnung C', '12,5 × 3,6 = ?',
+    ['42', '45', '48', '40,5'], 'b', '12,5 × 3,6 = 45'),
+  mc('rech-j', 'extreme', 'Multiplikation III', '1 847 × 63 = ?',
+    ['115 361', '116 361', '117 361', '106 361'], 'b', '1 847 × 63 = 116 361'),
+  mc('rech-k', 'extreme', 'Division III', '15 876 : 47 = ?',
+    ['328', '338', '348', '318'], 'b', '15 876 ÷ 47 = 338'),
+  mc('rech-l', 'extreme', 'Bruchrechnung D', '2 ¼ − 1 ½ = ?',
+    ['½', '¾', '1', '¼'], 'b', '2¼ − 1½ = ¾'),
+  mc('rech-m', 'extreme', 'Dezimalrechnung D', '47,85 × 2,4 = ?',
+    ['104,84', '114,84', '124,84', '112,44'], 'b', '47,85 × 2,4 = 114,84'),
 ]
