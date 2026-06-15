@@ -1,0 +1,7 @@
+export { wortExtras } from './wort-beziehungen'
+export { zahlenExtras } from './zahlen-beziehungen'
+export { symbolExtras } from './symbol-beziehungen'
+export { raumExtras } from './raeumliches-denken'
+export { mechExtras } from './mechanisch-technisch'
+export { rechnenExtras } from './rechnen'
+export { textrechenExtras } from './textrechen'
