@@ -4,7 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.dirname(fileURLToPath(import.meta.url))
-const dataDir = process.env.DATA_DIR || path.join(root, '..', 'data')
+const dataDir = process.env.DATA_DIR || (process.env.NODE_ENV === 'production' ? '/data' : path.join(root, '..', 'data'))
 const dbPath = process.env.DATABASE_PATH || path.join(dataDir, 'bwt.db')
 
 if (!fs.existsSync(dataDir)) {

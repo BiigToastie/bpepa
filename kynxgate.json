@@ -1,0 +1,19 @@
+{
+  "healthCheck": {
+    "type": "http",
+    "path": "/api/health",
+    "command": "node scripts/healthcheck.mjs"
+  },
+  "deploy": {
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 90
+  },
+  "requiredEnvironment": {
+    "description": "In KynxGate unter Variables setzen (niemals ins Repo committen).",
+    "variables": {
+      "JWT_SECRET": "Pflicht. Min. 32 Zeichen. z. B. openssl rand -base64 48",
+      "DATA_DIR": "/data",
+      "NODE_ENV": "production"
+    }
+  }
+}
