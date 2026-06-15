@@ -37,12 +37,10 @@ export function SiteHeader({
           )}
         </div>
 
-        {(title || badge) && (
-          <div className="site-header-center">
-            {badge && <span className="nav-badge">{badge}</span>}
-            {title && <h2 className="nav-title">{title}</h2>}
-          </div>
-        )}
+        <div className="site-header-center">
+          {badge && <span className="nav-badge">{badge}</span>}
+          {title && <h2 className="nav-title">{title}</h2>}
+        </div>
 
         <nav className="site-header-right" aria-label="Hauptnavigation">
           <button type="button" className="header-nav-link" onClick={onMarathon}>
