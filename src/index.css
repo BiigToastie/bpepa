@@ -1199,6 +1199,284 @@ button {
   gap: 10px;
 }
 
+/* ─── Auth, Marathon, Leaderboard ─── */
+.auth-panel,
+.marathon-setup,
+.marathon-result,
+.leaderboard-panel {
+  padding: 28px 24px;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.auth-tab {
+  padding: 10px 14px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.auth-tab.active {
+  background: rgba(109, 126, 234, 0.2);
+  border-color: rgba(109, 126, 234, 0.45);
+  color: var(--text);
+}
+
+.auth-hint,
+.leaderboard-hint,
+.marathon-intro {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.auth-field input {
+  padding: 12px 14px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.auth-error {
+  color: var(--error);
+  font-size: 0.88rem;
+}
+
+.marathon-cta {
+  box-shadow: 0 8px 32px var(--accent-glow);
+}
+
+.hero-user {
+  margin-top: 12px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.marathon-login-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(109, 126, 234, 0.12);
+  border: 1px solid rgba(109, 126, 234, 0.25);
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+}
+
+.marathon-user {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.marathon-block {
+  margin-bottom: 22px;
+}
+
+.marathon-block h3 {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.marathon-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.marathon-block-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.marathon-difficulty-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.marathon-diff-btn {
+  padding: 10px 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--glass-border);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.marathon-diff-btn.active {
+  background: rgba(67, 233, 123, 0.12);
+  border-color: rgba(67, 233, 123, 0.35);
+  color: var(--text);
+}
+
+.marathon-mastery-summary {
+  font-size: 0.85rem;
+  color: var(--success);
+  margin-bottom: 10px;
+}
+
+.marathon-section-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.marathon-section-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+}
+
+.marathon-section-item.mastered {
+  border-color: rgba(67, 233, 123, 0.35);
+  background: var(--success-bg);
+}
+
+.marathon-section-icon {
+  font-size: 1.25rem;
+}
+
+.marathon-section-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.marathon-section-info strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.marathon-check {
+  color: var(--success);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.marathon-setup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.marathon-section-results h3 {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.marathon-section-results ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.marathon-section-result {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+}
+
+.marathon-section-result.mastered {
+  border-color: rgba(67, 233, 123, 0.35);
+  background: var(--success-bg);
+}
+
+.marathon-section-result-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.marathon-section-result-body strong {
+  color: var(--text);
+}
+
+.leaderboard-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+}
+
+.leaderboard-row.top-1 { border-color: rgba(255, 215, 0, 0.4); }
+.leaderboard-row.top-2 { border-color: rgba(192, 192, 192, 0.4); }
+.leaderboard-row.top-3 { border-color: rgba(205, 127, 50, 0.4); }
+
+.leaderboard-rank {
+  font-family: var(--font-display);
+  font-weight: 700;
+  min-width: 2.5rem;
+  color: var(--accent);
+}
+
+.leaderboard-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.leaderboard-info strong {
+  color: var(--text);
+}
+
+.leaderboard-empty,
+.leaderboard-loading {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 /* ─── Desktop ─── */
 @media (min-width: 768px) {
   :root { --page-pad: 32px; }

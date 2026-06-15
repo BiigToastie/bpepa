@@ -4,8 +4,13 @@ import { categories } from '../data/exercises'
 import { getCategoryProgress, resetProgress } from '../hooks/useProgress'
 import { AppShell } from './AppShell'
 
+import type { User } from '../api/client'
+
 interface Props {
+  user: User | null
   onSelectCategory: (id: string) => void
+  onStartMarathon: () => void
+  onLeaderboard: () => void
 }
 
 const FEATURES = [
@@ -29,7 +34,7 @@ const FEATURES = [
   },
 ]
 
-export function Home({ onSelectCategory }: Props) {
+export function Home({ user, onSelectCategory, onStartMarathon, onLeaderboard }: Props) {
   const categoriesRef = useRef<HTMLElement>(null)
   const totalQuestions = categories.reduce((sum, c) => sum + c.questions.length, 0)
   const totalDone = categories.reduce((sum, c) => {
@@ -53,8 +58,8 @@ export function Home({ onSelectCategory }: Props) {
             <span className="nav-brand-icon">🧠</span>
             <span className="nav-brand-text">BWT Trainer</span>
           </button>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={scrollToCategories}>
-            Übungen
+          <button type="button" className="btn btn--ghost btn--sm" onClick={onLeaderboard}>
+            Leaderboard
           </button>
         </nav>
 
@@ -70,13 +75,16 @@ export function Home({ onSelectCategory }: Props) {
               mobil unterwegs oder am PC, in deinem Tempo und mit sofortigem Feedback.
             </p>
             <div className="hero-actions">
-              <button type="button" className="btn btn--primary btn--lg" onClick={scrollToCategories}>
-                Jetzt üben
+              <button type="button" className="btn btn--primary btn--lg marathon-cta" onClick={onStartMarathon}>
+                🏁 Startall Marathon
               </button>
-              <button type="button" className="btn btn--ghost btn--lg" onClick={scrollToCategories}>
-                Kategorien ansehen
+              <button type="button" className="btn btn--secondary btn--lg" onClick={scrollToCategories}>
+                Einzelkategorien
               </button>
             </div>
+            {user && (
+              <p className="hero-user">Eingeloggt als <strong>{user.displayName}</strong></p>
+            )}
             <div className="hero-stats">
               <div className="hero-stat">
                 <strong>{totalQuestions}</strong>
@@ -147,7 +155,7 @@ export function Home({ onSelectCategory }: Props) {
             <span className="section-label">Übungsbereiche</span>
             <h2>Wähle deine Kategorie</h2>
             <p className="section-sub">
-              Jede Sektion enthält über 14 Aufgaben in drei Schwierigkeitsstufen.
+              Jede Sektion enthält mindestens 10 Aufgaben pro Schwierigkeitsstufe.
             </p>
           </div>
           <div className="category-grid">
