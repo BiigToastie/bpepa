@@ -29,13 +29,11 @@ function checkAnswer(question: Question, userAnswer: string | string[]): boolean
   if (question.type === 'multiple-choice') {
     return userAnswer === question.correctAnswer
   }
-
   if (question.type === 'sequence-input') {
     const answers = userAnswer as string[]
     const correct = question.correctAnswer as string[]
     return answers.every((a, i) => normalizeAnswer(a) === normalizeAnswer(correct[i] ?? ''))
   }
-
   const normalized = normalizeAnswer(userAnswer as string)
   const variants = question.acceptVariants ?? [question.correctAnswer as string]
   return variants.some((v) => normalizeAnswer(v) === normalized)
@@ -61,20 +59,13 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
       if (!textInput.trim()) return
       answer = textInput
     }
-
-    const correct = checkAnswer(question, answer)
-    setIsCorrect(correct)
+    setIsCorrect(checkAnswer(question, answer))
     setSubmitted(true)
-  }
-
-  function handleNext() {
-    onAnswer(isCorrect)
   }
 
   return (
     <div className="question-card">
       <div className="question-progress">
-        <span>Aufgabe {questionNumber} von {totalQuestions}</span>
         <div className="progress-dots">
           {Array.from({ length: totalQuestions }).map((_, i) => (
             <div
@@ -91,13 +82,11 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
       {question.visual && <QuestionVisual name={question.visual} />}
 
       {!submitted && question.hint && (
-        <button className="hint-btn" onClick={() => setShowHint(!showHint)}>
+        <button type="button" className="hint-btn" onClick={() => setShowHint(!showHint)}>
           {showHint ? 'Tipp ausblenden' : '💡 Tipp anzeigen'}
         </button>
       )}
-      {showHint && !submitted && (
-        <p className="hint-text">{question.hint}</p>
-      )}
+      {showHint && !submitted && <p className="hint-text">{question.hint}</p>}
 
       {!submitted && (
         <div className="answer-area">
@@ -106,6 +95,7 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
               {question.options.map((opt) => (
                 <button
                   key={opt.id}
+                  type="button"
                   className={`option-btn ${selected === opt.id ? 'selected' : ''}`}
                   onClick={() => setSelected(opt.id)}
                 >
@@ -120,7 +110,7 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
             <input
               type="text"
               className="text-input"
-              placeholder="Deine Antwort…"
+              placeholder="Deine Antwort eingeben…"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -153,7 +143,7 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
             </div>
           )}
 
-          <button className="submit-btn" onClick={handleSubmit}>
+          <button type="button" className="btn btn--secondary btn--block" onClick={handleSubmit}>
             Antwort prüfen
           </button>
         </div>
@@ -164,8 +154,8 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
           <div className="feedback-icon">{isCorrect ? '✓' : '✗'}</div>
           <h3>{isCorrect ? 'Richtig!' : 'Leider falsch'}</h3>
           <p>{question.explanation}</p>
-          <button className="next-btn" onClick={handleNext}>
-            {questionNumber < totalQuestions ? 'Nächste Aufgabe' : 'Ergebnis anzeigen'}
+          <button type="button" className="btn btn--primary btn--block" onClick={() => onAnswer(isCorrect)}>
+            {questionNumber < totalQuestions ? 'Nächste Aufgabe →' : 'Ergebnis anzeigen'}
           </button>
         </div>
       )}

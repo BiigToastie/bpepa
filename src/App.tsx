@@ -3,6 +3,7 @@ import type { View } from './types'
 import { getCategory, getCategoryQuestions } from './data/exercises'
 import { DIFFICULTY_LABELS } from './data/difficulty'
 import { markQuestionComplete, saveCategoryScore } from './hooks/useProgress'
+import { AppShell } from './components/AppShell'
 import { Home } from './components/Home'
 import { CategoryView } from './components/CategoryView'
 import { QuestionCard } from './components/QuestionCard'
@@ -18,9 +19,7 @@ export default function App() {
 
   if (view.screen === 'home') {
     return (
-      <Home
-        onSelectCategory={(id) => setView({ screen: 'category', categoryId: id })}
-      />
+      <Home onSelectCategory={(id) => setView({ screen: 'category', categoryId: id })} />
     )
   }
 
@@ -46,44 +45,42 @@ export default function App() {
     if (!question) { goHome(); return null }
 
     return (
-      <div className="screen quiz-screen">
-        <header className="screen-header screen-header--compact">
-          <button className="back-btn" onClick={goHome} aria-label="Zurück">
-            ←
-          </button>
-          <span className="quiz-category">
-            {category.icon} {category.shortTitle}
-            <span className={`difficulty-badge difficulty-badge--${view.difficulty}`}>
-              {DIFFICULTY_LABELS[view.difficulty]}
-            </span>
-          </span>
-        </header>
-        <QuestionCard
-          key={question.id}
-          question={question}
-          questionNumber={view.questionIndex + 1}
-          totalQuestions={questions.length}
-          onAnswer={(correct) => {
-            markQuestionComplete(question.id, correct)
-            const newScore = correct ? sessionScore + 1 : sessionScore
-            setSessionScore(newScore)
+      <AppShell
+        onBack={() => setView({ screen: 'category', categoryId: view.categoryId })}
+        onHome={goHome}
+        backLabel={category.shortTitle}
+        title={`Aufgabe ${view.questionIndex + 1} / ${questions.length}`}
+        badge={`${category.icon} ${DIFFICULTY_LABELS[view.difficulty]}`}
+        width="narrow"
+      >
+        <div className="quiz-panel glass-panel">
+          <QuestionCard
+            key={question.id}
+            question={question}
+            questionNumber={view.questionIndex + 1}
+            totalQuestions={questions.length}
+            onAnswer={(correct) => {
+              markQuestionComplete(question.id, correct)
+              const newScore = correct ? sessionScore + 1 : sessionScore
+              setSessionScore(newScore)
 
-            const nextIndex = view.questionIndex + 1
-            if (nextIndex < questions.length) {
-              setView({ ...view, questionIndex: nextIndex })
-            } else {
-              saveCategoryScore(`${view.categoryId}-${view.difficulty}`, newScore, questions.length)
-              setView({
-                screen: 'result',
-                categoryId: view.categoryId,
-                difficulty: view.difficulty,
-                score: newScore,
-                total: questions.length,
-              })
-            }
-          }}
-        />
-      </div>
+              const nextIndex = view.questionIndex + 1
+              if (nextIndex < questions.length) {
+                setView({ ...view, questionIndex: nextIndex })
+              } else {
+                saveCategoryScore(`${view.categoryId}-${view.difficulty}`, newScore, questions.length)
+                setView({
+                  screen: 'result',
+                  categoryId: view.categoryId,
+                  difficulty: view.difficulty,
+                  score: newScore,
+                  total: questions.length,
+                })
+              }
+            }}
+          />
+        </div>
+      </AppShell>
     )
   }
 
@@ -93,10 +90,10 @@ export default function App() {
     const emoji = pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪'
 
     return (
-      <div className="screen result-screen">
-        <div className="result-card">
+      <AppShell onHome={goHome} width="narrow">
+        <div className="result-panel glass-panel">
           <span className="result-emoji">{emoji}</span>
-          <h1>Geschafft!</h1>
+          <h1 className="result-title">Geschafft!</h1>
           <p className="result-category">
             {category?.title} · {DIFFICULTY_LABELS[view.difficulty]}
           </p>
@@ -116,25 +113,29 @@ export default function App() {
                 : 'Übung macht den Meister – versuch es noch einmal!'}
           </div>
 
-          <button
-            className="start-btn"
-            onClick={() =>
-              setView({ screen: 'quiz', categoryId: view.categoryId, difficulty: view.difficulty, questionIndex: 0 })
-            }
-          >
-            Nochmal üben
-          </button>
-          <button
-            className="secondary-btn"
-            onClick={() => setView({ screen: 'category', categoryId: view.categoryId })}
-          >
-            Anderen Schwierigkeitsgrad
-          </button>
-          <button className="secondary-btn" onClick={goHome}>
-            Alle Kategorien
-          </button>
+          <div className="result-actions">
+            <button
+              type="button"
+              className="btn btn--primary btn--block"
+              onClick={() =>
+                setView({ screen: 'quiz', categoryId: view.categoryId, difficulty: view.difficulty, questionIndex: 0 })
+              }
+            >
+              Nochmal üben
+            </button>
+            <button
+              type="button"
+              className="btn btn--secondary btn--block"
+              onClick={() => setView({ screen: 'category', categoryId: view.categoryId })}
+            >
+              Anderen Schwierigkeitsgrad
+            </button>
+            <button type="button" className="btn btn--ghost btn--block" onClick={goHome}>
+              Alle Kategorien
+            </button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     )
   }
 
