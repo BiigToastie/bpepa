@@ -14,8 +14,6 @@ export function InstallAppModal({ open, onClose }: Props) {
     installing,
     canInstallPwa,
     canInstallIos,
-    showAndroidApk,
-    apkUrl,
     installPwa,
   } = usePwaInstall()
 
@@ -41,7 +39,7 @@ export function InstallAppModal({ open, onClose }: Props) {
         <div className="install-dialog-head">
           <span className="install-dialog-icon">📲</span>
           <h2>App installieren</h2>
-          <p>Nimm den BWT Trainer überall mit – offline-fähig als PWA oder Android-APK.</p>
+          <p>Nimm den BWT Trainer überall mit – offline-fähig als Progressive Web App.</p>
         </div>
 
         {installed ? (
@@ -93,20 +91,7 @@ export function InstallAppModal({ open, onClose }: Props) {
               </div>
             )}
 
-            {showAndroidApk && (
-              <div className="install-step-card">
-                <div className="install-step-card-head">
-                  <span className="install-step-badge">Android</span>
-                  <h3>APK herunterladen</h3>
-                </div>
-                <p>Alternative zur Play Store-Installation – direkt als Android-App.</p>
-                <a href={apkUrl} className="btn btn--secondary btn--block" download>
-                  APK herunterladen
-                </a>
-              </div>
-            )}
-
-            {!canInstallPwa && !canInstallIos && !showAndroidApk && platform === 'desktop' && (
+            {!canInstallPwa && !canInstallIos && platform === 'desktop' && (
               <div className="install-step-card">
                 <p className="install-desktop-hint">
                   Öffne diese Seite auf deinem Smartphone – dort erscheint der Installieren-Button
@@ -115,7 +100,7 @@ export function InstallAppModal({ open, onClose }: Props) {
               </div>
             )}
 
-            {!canInstallPwa && platform === 'android' && !showAndroidApk && (
+            {!canInstallPwa && platform === 'android' && (
               <div className="install-step-card">
                 <p className="install-desktop-hint">
                   Tippe in Chrome auf das Menü <strong>⋮</strong> und wähle{' '}

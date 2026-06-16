@@ -25,7 +25,6 @@ export function usePwaInstall() {
   const [platform] = useState(detectPlatform)
   const [installed, setInstalled] = useState(isStandalone)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [apkAvailable, setApkAvailable] = useState(false)
   const [installing, setInstalling] = useState(false)
 
   useEffect(() => {
@@ -44,10 +43,6 @@ export function usePwaInstall() {
     window.addEventListener('appinstalled', onInstalled)
     mq.addEventListener('change', onDisplayChange)
 
-    fetch('/downloads/bwt-trainer.apk', { method: 'HEAD' })
-      .then((r) => setApkAvailable(r.ok))
-      .catch(() => setApkAvailable(false))
-
     return () => {
       window.removeEventListener('beforeinstallprompt', onBeforeInstall)
       window.removeEventListener('appinstalled', onInstalled)
@@ -57,7 +52,6 @@ export function usePwaInstall() {
 
   const canInstallPwa = !installed && Boolean(deferredPrompt)
   const canInstallIos = !installed && platform === 'ios'
-  const showAndroidApk = platform === 'android' && apkAvailable && !installed
 
   const installPwa = useCallback(async () => {
     if (!deferredPrompt) return false
@@ -82,8 +76,6 @@ export function usePwaInstall() {
     installing,
     canInstallPwa,
     canInstallIos,
-    showAndroidApk,
-    apkUrl: '/downloads/bwt-trainer.apk',
     installPwa,
   }
 }

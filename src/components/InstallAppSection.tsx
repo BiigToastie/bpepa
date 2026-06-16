@@ -9,8 +9,6 @@ export function InstallAppSection() {
     installed,
     canInstallPwa,
     canInstallIos,
-    showAndroidApk,
-    apkUrl,
     installPwa,
     installing,
     platform,
@@ -41,7 +39,7 @@ export function InstallAppSection() {
           </div>
 
           <div className="install-banner-actions">
-            {(canInstallPwa || canInstallIos || platform === 'desktop') && (
+            {(canInstallPwa || canInstallIos || platform === 'desktop' || platform === 'android') && (
               <button
                 type="button"
                 className="btn btn--primary btn--lg install-banner-btn"
@@ -51,13 +49,6 @@ export function InstallAppSection() {
                 <span className="install-btn-icon" aria-hidden>📲</span>
                 {installing ? 'Wird installiert…' : 'App installieren'}
               </button>
-            )}
-
-            {showAndroidApk && (
-              <a href={apkUrl} className="btn btn--secondary btn--lg install-banner-btn" download>
-                <span className="install-btn-icon" aria-hidden>🤖</span>
-                APK für Android
-              </a>
             )}
 
             <button type="button" className="btn btn--ghost install-banner-link" onClick={openInstallModal}>
@@ -85,7 +76,7 @@ export function InstallAppSection() {
         <article className="install-platform-card glass-panel">
           <span className="install-platform-icon">🤖</span>
           <h3>Android</h3>
-          <p>PWA installieren oder APK direkt laden – ein Tipp genügt.</p>
+          <p>In Chrome „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p>
         </article>
         <article className="install-platform-card glass-panel">
           <span className="install-platform-icon">💻</span>
