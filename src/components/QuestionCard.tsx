@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Question } from '../types'
+import { resolveVisual } from '../lib/resolveVisual'
 import { QuestionVisual } from './QuestionVisual'
 
 interface Props {
@@ -43,6 +44,7 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
   }
 
   const optionLetters = question.options.map((o) => o.id.toUpperCase()).join(' · ')
+  const visual = useMemo(() => resolveVisual(question), [question])
 
   return (
     <div className="question-card">
@@ -60,7 +62,7 @@ export function QuestionCard({ question, onAnswer, questionNumber, totalQuestion
       <h2 className="question-title">{question.title}</h2>
       <p className="question-prompt">{question.prompt}</p>
 
-      {question.visual && <QuestionVisual name={question.visual} />}
+      {visual && <QuestionVisual question={question} />}
 
       {!submitted && question.hint && (
         <button type="button" className="hint-btn" onClick={() => setShowHint(!showHint)}>

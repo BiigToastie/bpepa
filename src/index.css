@@ -1264,7 +1264,12 @@ button {
   justify-content: center;
 }
 
-.shape-svg { width: 100%; max-width: 220px; }
+.shape-svg { width: 100%; max-width: 280px; }
+
+.visual--3d .shape-svg {
+  max-width: 300px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+}
 
 .visual--stability {
   flex-direction: row;
