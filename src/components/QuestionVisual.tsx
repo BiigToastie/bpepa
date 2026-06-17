@@ -1,6 +1,7 @@
 import type { Question } from '../types'
 import { resolveVisual, type VisualSpec } from '../lib/resolveVisual'
 import { SpatialVisual } from './visuals/SpatialVisuals'
+import { ShapeSvg } from './visuals/ShapeSvg'
 
 interface Props {
   question: Question
@@ -76,7 +77,7 @@ function SymbolSequenceB() {
 function NetFoldA() {
   return (
     <div className="visual visual--net">
-      <svg viewBox="0 0 160 160" className="shape-svg" aria-hidden>
+      <ShapeSvg w={160} h={175} pad={12}>
         <rect x="55" y="10" width="50" height="50" fill="none" stroke="#43e97b" strokeWidth="2" strokeDasharray="4 3" />
         <rect x="55" y="60" width="50" height="50" fill="#43e97b" opacity="0.2" stroke="#43e97b" strokeWidth="2" strokeDasharray="4 3" />
         <rect x="5" y="60" width="50" height="50" fill="none" stroke="#43e97b" strokeWidth="2" strokeDasharray="4 3" />
@@ -88,11 +89,11 @@ function NetFoldA() {
             <g key={label} transform={`translate(${i * 38}, 0)`}>
               <rect x="2" y="2" width="22" height="22" fill="#667eea" opacity="0.3" stroke="#667eea" strokeWidth="1.5" />
               {label === 'd' && <circle cx="13" cy="13" r="4" fill="#fee140" />}
-              <text x="13" y="35" textAnchor="middle" fill="currentColor" fontSize="10">{label}</text>
+              <text x="13" y="35" textAnchor="middle" fill="#f4f6ff" fontSize="10">{label}</text>
             </g>
           ))}
         </g>
-      </svg>
+      </ShapeSvg>
       <p className="visual-caption">Netz (gestrichelt = Falzlinien)</p>
     </div>
   )
@@ -119,19 +120,19 @@ function StabilityShapes() {
 function GearSystem() {
   return (
     <div className="visual visual--gears">
-      <svg viewBox="0 0 200 80" className="shape-svg" aria-hidden>
+      <ShapeSvg w={200} h={80} pad={12}>
         <path d="M 30 40 L 70 40 L 130 40 L 170 40" fill="none" stroke="#94a3b8" strokeWidth="3" />
         <circle cx="30" cy="40" r="22" fill="none" stroke="#fa709a" strokeWidth="3" />
         <circle cx="30" cy="40" r="4" fill="#fa709a" />
-        <text x="30" y="75" textAnchor="middle" fill="currentColor" fontSize="12">a</text>
+        <text x="30" y="75" textAnchor="middle" fill="#f4f6ff" fontSize="12">a</text>
         <circle cx="100" cy="40" r="14" fill="none" stroke="#fee140" strokeWidth="3" />
         <circle cx="100" cy="40" r="3" fill="#fee140" />
-        <text x="100" y="75" textAnchor="middle" fill="currentColor" fontSize="12">b</text>
+        <text x="100" y="75" textAnchor="middle" fill="#f4f6ff" fontSize="12">b</text>
         <circle cx="170" cy="40" r="8" fill="none" stroke="#43e97b" strokeWidth="3" />
         <circle cx="170" cy="40" r="2" fill="#43e97b" />
-        <text x="170" y="75" textAnchor="middle" fill="currentColor" fontSize="12">c</text>
+        <text x="170" y="75" textAnchor="middle" fill="#f4f6ff" fontSize="12">c</text>
         <text x="100" y="15" textAnchor="middle" fill="#94a3b8" fontSize="10">← Antrieb</text>
-      </svg>
+      </ShapeSvg>
     </div>
   )
 }

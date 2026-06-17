@@ -1206,17 +1206,35 @@ button {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
-  padding: 24px;
+  padding: 20px 16px;
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  overflow: visible;
 }
 
 .visual-caption {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 10px;
+  text-align: center;
+}
+
+.visual-svg-wrap {
+  width: 100%;
+  max-width: min(100%, 360px);
+  margin: 0 auto;
+  overflow: visible;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+}
+
+.shape-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
 }
 
 .symbol-row {
@@ -1262,13 +1280,6 @@ button {
   font-weight: 700;
   align-items: center;
   justify-content: center;
-}
-
-.shape-svg { width: 100%; max-width: 280px; }
-
-.visual--3d .shape-svg {
-  max-width: 300px;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
 }
 
 .visual--stability {
